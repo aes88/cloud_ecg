@@ -1,0 +1,3 @@
+[submodule "bme590hrm"]
+	path = bme590hrm
+	url = https://github.com/btlee215/bme590hrm.git
