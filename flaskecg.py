@@ -3,16 +3,23 @@ app = Flask(__name__)
 
 class HrmVals:
 
-    def __init__(self,time,voltage):
+    def __init__(self,time,voltage,start_min,end_min):
         self.time = time
         self.voltage = voltage
+        self.start_min = start_min
+        self.end_min = end_min
+        self.instant_hr = []
+        self.average_hr = None
+        self.brady_limit = 60
+        self.tachy_limit = 100
+        self.tachy = []
+        self.brady = []
 
     def hrm_data(self, peak_thresh = 0.9, base_thresh = 0.1):
         import statistics
         import numpy as np
         from hrmcalcs2oo import hrmcalcs
         from hrmtb import TachyBrady
-        from hrm_oo import extract_vals
         toggle_peak_status = False
         peak_times = []
         peak_vector = []
@@ -34,18 +41,31 @@ class HrmVals:
             peak_vector = np.array(peak_times)
         timebeat = np.diff(peak_vector)
 
+        calc_ecg = hrmcalcs(timebeat,peak_vector,self.start_min,self.end_min) # creating an object
+        calc_ecg.hrm_instant() # runs the hrm_instant module
+        self.instant_hr = calc_ecg.instant_hr
+        calc_ecg.hrm_average()
+        self.average_hr = calc_ecg.average_hr
+        tb_ecg = TachyBrady(self.instant_hr,self.brady_limit,self.tachy_limit)
+        tb_ecg.tb()
+        self.tachy = tb_ecg.tachy
+        self.brady = tb_ecg.brady
 
 @app.route("/api/heart_rate/summary", methods = ['POST'])
 def hrsummary ():
     data = request.get_json()
     t = data['t']
     v = data['v']
+    start_min = data['start min']
+    end_min = data['end min']
     time = np.array(t)
     voltage = np.array(v)
-    a = Values(time,voltage)
-    a.instant_hr
-
-
+    ecgcalcs = HrmVals(time,voltage,start_min,end_min)
+    ecgcalcs.hrm_data()
+    instantHR = hrm_data.instant_hr
+    tachycondition = hrm_data.tachy
+    bradycondition = hrm_data.brady
+    
 
 @app.route("api/heart_rate/average", methods = ['POST'])
 def hraverage ():
