@@ -1,11 +1,13 @@
 from flask import Flask,request,jsonify
 app = Flask(__name__)
 
-class Values:
+class HrmVals:
 
     def __init__(self,time,voltage):
         self.time = time
         self.voltage = voltage
+
+    def hrm_data(self, peak_thresh = 0.9, base_thresh = 0.1):
         import statistics
         import numpy as np
         from hrmcalcs2oo import hrmcalcs
