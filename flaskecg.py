@@ -65,7 +65,11 @@ def hrsummary ():
     instantHR = hrm_data.instant_hr
     tachycondition = hrm_data.tachy
     bradycondition = hrm_data.brady
-    
+    for row in list(zip(time,instantHR,tachycondition,bradycondition)):
+        return("{},{},{},{}\n".format(np.round(row[0], 2),
+                                       np.round(row[1], 2),
+                                       np.round(row[2], 2),
+                                       np.round(row[3], 2)))
 
 @app.route("api/heart_rate/average", methods = ['POST'])
 def hraverage ():
