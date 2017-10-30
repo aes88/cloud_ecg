@@ -16,7 +16,7 @@ class HrmVals:
         self.peak_vector = []
         self.timebeat = []
 
-    def hrm_data(self, peak_thresh=0.9, base_thresh=0.1):
+    def hrm_data(self, peak_thresh=0.8, base_thresh=0.2):
         import statistics
         import numpy as np
         from bme590hrm.hrmcalcs2oo import hrmcalcs
