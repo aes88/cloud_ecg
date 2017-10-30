@@ -43,7 +43,7 @@ class HrmVals:
                 count += 1
             self.peak_vector = np.array(peak_times)
         self.timebeat = np.diff(self.peak_vector)
-
+    
     def hrm_instant_data(self):
         import statistics
         import numpy as np
@@ -62,8 +62,8 @@ class HrmVals:
     def hrm_average_data(self, averaging_window):
         import statistics
         import numpy as np
-        from hrmcalcs2oo import hrmcalcs
-        from hrmtb import TachyBrady
+        from bme590hrm.hrmcalcs2oo import hrmcalcs
+        from bme590hrm.hrmtb import TachyBrady
         # calc_ecg.hrm_average()
         calc_ecg = hrmcalcs(self.time, self.timebeat, self.peak_vector, averaging_window)
         self.instant_hr = calc_ecg.instant_hr
@@ -149,6 +149,9 @@ def hrmaverage():
     t_check_2 = True
     v_check_1 = True
     v_check_2 = True
+    avg_check_1 = True
+    avg_check_2 = True
+    avg_check_3 = True
     data = request.get_json()
     try:
         t = data['time']
@@ -178,21 +181,38 @@ def hrmaverage():
             v = data['VOLTAGE']
         except:
             return "Error: Voltage not entered/misspelled"
-    average_window = data['averaging_period']
+    try:
+        average_window = data['averaging_period']
+    except:
+        avg_check_1 = False
+    if not avg_check_1:
+        try:
+            average_window = data['Averaging_period']
+        except:
+            avg_check_2 = False
+    if not avg_check_2:
+        try:
+            average_window = data['Averaging_period']
+        except:
+            avg_check_3 = False
+    if not avg_check_3:
+        try:
+            average_window = data['AVERAGING_PERIOD']
+        except:
+            return "Error: Average window not entered/misspelled"
     time = np.array(t)
     voltage = np.array(v)
     ecgcalcs = HrmVals(time, voltage)
     ecgcalcs.hrm_data()
     ecgcalcs.hrm_average_data(average_window)
-    average_hr = ecgcalcs.instant_hr
+    average_hr = ecgcalcs.average_hr
     tachycondition = ecgcalcs.tachy
     bradycondition = ecgcalcs.brady
     countave[0] += 1
-    for row in list(zip(time, average_hr, tachycondition, bradycondition)):
-        return ("{},{},{},{}\n".format(np.round(row[0], 2),
-                                       np.round(row[1], 2),
-                                       np.round(row[2], 2),
-                                       np.round(row[3], 2)))
+    return_message = {"averaging_period":average_window, "time": t,
+                      "tachycardia_annotations": tachycondition,
+                      "bradycardia_annotations": bradycondition}
+    return jsonify(return_message)
 
 @app.route("/api/requests",methods = ['GET'])
 def requests ():
