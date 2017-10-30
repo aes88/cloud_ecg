@@ -219,4 +219,5 @@ def hrmaverage():
 @app.route("/api/requests",methods = ['GET'])
 def requests ():
     totalhits = counts + countave
-    return jsonify(totalhits)
+    a = jsonify(totalhits)
+    return "The total number of requests at this API is %s. " % a.get_data(as_text = True)
