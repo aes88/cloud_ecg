@@ -83,15 +83,30 @@ def hrsummary():
     time = np.array(t)
     voltage = np.array(v)
     ecgcalcs = HrmVals(time, voltage)
+    ecgcalcs.hrm_data()
     ecgcalcs.hrm_instant_data()
     instant_hr = ecgcalcs.instant_hr
     tachycondition = ecgcalcs.tachy
     bradycondition = ecgcalcs.brady
-    for row in list(zip(time, instant_hr, tachycondition, bradycondition)):
-        return("{},{},{},{}\n".format(np.round(row[0], 2),
-                                      np.round(row[1], 2),
-                                      np.round(row[2], 2),
-                                      np.round(row[3], 2)))
+    #for row in list(zip(time, instant_hr, tachycondition, bradycondition)):
+    #    return("{},{},{},{}\n".format(np.round(row[0], 2),
+    #                                  np.round(row[1], 2),
+    #                                  np.round(row[2], 2),
+    #                                  np.round(row[3], 2)))
+    #count = 0
+    #return_string = "["
+    #for i in peak_vector:
+    #    if count == 0:
+    #        return_string += "{:}".format(peak_vector[count])
+    #    else:
+    #        return_string += ", {:}".format(peak_vector[count])
+    #    count += 1
+    #return_string += "]"
+    #return "{:}".format(return_string)
+    return_message = {"time":t, "instantaneous_heart_rate":instant_hr,
+                      "tachycardia_annotations":tachycondition,
+                      "bradycardia_annotations":bradycondition}
+    return jsonify(return_message)
 
 
 @app.route("/api/heart_rate/average", methods=['POST'])
@@ -104,6 +119,7 @@ def hrmaverage():
     time = np.array(t)
     voltage = np.array(v)
     ecgcalcs = HrmVals(time, voltage)
+    ecgcalcs.hrm_data()
     ecgcalcs.hrm_average_data(average_window)
     average_hr = ecgcalcs.instant_hr
     tachycondition = ecgcalcs.tachy
