@@ -79,9 +79,39 @@ countave = [0]
 @app.route("/api/heart_rate/summary", methods=['POST'])
 def hrsummary():
     import numpy as np
+    t_check_1 = True
+    t_check_2 = True
+    v_check_1 = True
+    v_check_2 = True
     data = request.get_json()
-    t = data['time']
-    v = data['voltage']
+    try:
+        t = data['time']
+    except:
+        t_check_1 = False
+    if not t_check_1:
+        try:
+            t = data['Time']
+        except:
+            t_check_2 = False
+    if not t_check_2:
+        try:
+            t = data['TIME']
+        except:
+            return "Error: Time not entered/misspelled"
+    try:
+        v = data['voltage']
+    except:
+        v_check_1 = False
+    if not v_check_1:
+        try:
+            v = data['Voltage']
+        except:
+            v_check_2 = False
+    if not v_check_2:
+        try:
+            v = data['VOLTAGE']
+        except:
+            return "Error: Voltage not entered/misspelled"
     time = np.array(t)
     voltage = np.array(v)
     ecgcalcs = HrmVals(time, voltage)
@@ -115,9 +145,39 @@ def hrsummary():
 @app.route("/api/heart_rate/average", methods=['POST'])
 def hrmaverage():
     import numpy as np
+    t_check_1 = True
+    t_check_2 = True
+    v_check_1 = True
+    v_check_2 = True
     data = request.get_json()
-    t = data['time']
-    v = data['voltage']
+    try:
+        t = data['time']
+    except:
+        t_check_1 = False
+    if not t_check_1:
+        try:
+            t = data['Time']
+        except:
+            t_check_2 = False
+    if not t_check_2:
+        try:
+            t = data['TIME']
+        except:
+            return "Error: Time not entered/misspelled"
+    try:
+        v = data['voltage']
+    except:
+        v_check_1 = False
+    if not v_check_1:
+        try:
+            v = data['Voltage']
+        except:
+            v_check_2 = False
+    if not v_check_2:
+        try:
+            v = data['VOLTAGE']
+        except:
+            return "Error: Voltage not entered/misspelled"
     average_window = data['averaging_period']
     time = np.array(t)
     voltage = np.array(v)
