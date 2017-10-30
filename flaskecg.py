@@ -73,6 +73,8 @@ class HrmVals:
         self.tachy = tb_ecg.tachy
         self.brady = tb_ecg.brady
 
+countsum = [0]
+countave = [0]
 
 @app.route("/api/heart_rate/summary", methods=['POST'])
 def hrsummary():
@@ -88,6 +90,7 @@ def hrsummary():
     instant_hr = ecgcalcs.instant_hr
     tachycondition = ecgcalcs.tachy
     bradycondition = ecgcalcs.brady
+    countsum[0] += 1
     #for row in list(zip(time, instant_hr, tachycondition, bradycondition)):
     #    return("{},{},{},{}\n".format(np.round(row[0], 2),
     #                                  np.round(row[1], 2),
@@ -124,11 +127,14 @@ def hrmaverage():
     average_hr = ecgcalcs.instant_hr
     tachycondition = ecgcalcs.tachy
     bradycondition = ecgcalcs.brady
+    countave[0] += 1
     for row in list(zip(time, average_hr, tachycondition, bradycondition)):
         return ("{},{},{},{}\n".format(np.round(row[0], 2),
                                        np.round(row[1], 2),
                                        np.round(row[2], 2),
                                        np.round(row[3], 2)))
 
-# @app.route("api/requests",methods = ['GET'])
-# def requests ():
+@app.route("/api/requests",methods = ['GET'])
+def requests ():
+   totalhits = countsum[0] + countave[0]
+   return totalhits
