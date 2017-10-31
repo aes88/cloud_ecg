@@ -211,3 +211,13 @@ def hrmaverage():
 
 @app.route("/api/requests",methods = ['GET'])
 def requests ():
+    nowcount = countsum[0] + countave[0]
+    #counts need to be jsons
+    with open("counterfile.txt","w+") as f:
+        try:
+            savedcount = json.load(f)
+            savedcount += nowcount
+            json.dump(savedcount,f)
+        except NameError:
+            savedcount = nowcount
+            json.dump(savedcount,f)
