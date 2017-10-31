@@ -73,6 +73,9 @@ class HrmVals:
         self.tachy = tb_ecg.tachy
         self.brady = tb_ecg.brady
 
+countave = 0
+countsum = 0
+
 @app.route("/api/heart_rate/summary", methods=['POST'])
 def hrsummary():
     import numpy as np
@@ -132,6 +135,7 @@ def hrsummary():
     #    count += 1
     #return_string += "]"
     #return "{:}".format(return_string)
+    countsum += 1
     return_message = {"time":t, "instantaneous_heart_rate":instant_hr,
                       "tachycardia_annotations":tachycondition,
                       "bradycardia_annotations":bradycondition}
@@ -204,6 +208,7 @@ def hrmaverage():
     average_hr = ecgcalcs.average_hr
     tachycondition = ecgcalcs.tachy
     bradycondition = ecgcalcs.brady
+    countave += 1
     return_message = {"averaging_period":average_window, "time": t,
                       "tachycardia_annotations": tachycondition,
                       "bradycardia_annotations": bradycondition}
@@ -211,13 +216,15 @@ def hrmaverage():
 
 @app.route("/api/requests",methods = ['GET'])
 def requests ():
-    nowcount = countsum[0] + countave[0]
+    nowcount = countsum + countave
     #counts need to be jsons
     with open("counterfile.txt","w+") as f:
         try:
             savedcount = json.load(f)
             savedcount += nowcount
             json.dump(savedcount,f)
+            return savedcount
         except NameError:
             savedcount = nowcount
             json.dump(savedcount,f)
+            return savedcount
