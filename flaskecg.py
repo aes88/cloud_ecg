@@ -220,4 +220,4 @@ def hrmaverage():
 def requests ():
     totalhits = counts + countave
     a = jsonify(totalhits)
-    return "The total number of hits at this API is %s." % a.get_data(asText = True)
+    return "The total number of hits at this API is %s." % a.get_data(as_text = True)
