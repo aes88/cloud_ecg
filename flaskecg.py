@@ -78,6 +78,8 @@ countsum = 0
 
 @app.route("/api/heart_rate/summary", methods=['POST'])
 def hrsummary():
+    global countsum
+    countsum += 1
     import numpy as np
     t_check_1 = True
     t_check_2 = True
@@ -135,8 +137,7 @@ def hrsummary():
     #    count += 1
     #return_string += "]"
     #return "{:}".format(return_string)
-    global countsum
-    countsum += 1
+
     return_message = {"time":t, "instantaneous_heart_rate":instant_hr,
                       "tachycardia_annotations":tachycondition,
                       "bradycardia_annotations":bradycondition}
@@ -145,6 +146,8 @@ def hrsummary():
 
 @app.route("/api/heart_rate/average", methods=['POST'])
 def hrmaverage():
+    global countave
+    countave += 1
     import numpy as np
     t_check_1 = True
     t_check_2 = True
@@ -209,8 +212,7 @@ def hrmaverage():
     average_hr = ecgcalcs.average_hr
     tachycondition = ecgcalcs.tachy
     bradycondition = ecgcalcs.brady
-    global countave
-    countave += 1
+
     return_message = {"averaging_period":average_window, "time": t,
                       "tachycardia_annotations": tachycondition,
                       "bradycardia_annotations": bradycondition}
@@ -221,6 +223,7 @@ def requests ():
     totalcount = countsum + countave
     return_str = "The total number of requests is %d" % (totalcount)
     return jsonify(return_str)
+
     #a = jsonify(totalcount)
     #return "The total number of requests is %s." % (a) #.get_data(asText=True)
     #counts need to be jsons
