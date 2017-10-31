@@ -79,6 +79,8 @@ counts = 0
 @app.route("/api/heart_rate/summary", methods=['POST'])
 def hrsummary():
     import numpy as np
+    global counts
+    counts += 1
     t_check_1 = True
     t_check_2 = True
     v_check_1 = True
@@ -114,29 +116,16 @@ def hrsummary():
             return "Error: Voltage not entered/misspelled"
     time = np.array(t)
     voltage = np.array(v)
+    # errors to test: 1. non-numeric t or v
+    # 2. unequal length
+    # 3. empty vectors
+    # 4. no heartbeats detected
     ecgcalcs = HrmVals(time, voltage)
     ecgcalcs.hrm_data()
     ecgcalcs.hrm_instant_data()
     instant_hr = ecgcalcs.instant_hr
     tachycondition = ecgcalcs.tachy
     bradycondition = ecgcalcs.brady
-    global counts
-    counts += 1
-    #for row in list(zip(time, instant_hr, tachycondition, bradycondition)):
-    #    return("{},{},{},{}\n".format(np.round(row[0], 2),
-    #                                  np.round(row[1], 2),
-    #                                  np.round(row[2], 2),
-    #                                  np.round(row[3], 2)))
-    #count = 0
-    #return_string = "["
-    #for i in peak_vector:
-    #    if count == 0:
-    #        return_string += "{:}".format(peak_vector[count])
-    #    else:
-    #        return_string += ", {:}".format(peak_vector[count])
-    #    count += 1
-    #return_string += "]"
-    #return "{:}".format(return_string)
     return_message = {"time":t, "instantaneous_heart_rate":instant_hr,
                       "tachycardia_annotations":tachycondition,
                       "bradycardia_annotations":bradycondition}
@@ -146,6 +135,8 @@ def hrsummary():
 @app.route("/api/heart_rate/average", methods=['POST'])
 def hrmaverage():
     import numpy as np
+    global countave
+    countave += 1
     t_check_1 = True
     t_check_2 = True
     v_check_1 = True
@@ -209,9 +200,8 @@ def hrmaverage():
     average_hr = ecgcalcs.average_hr
     tachycondition = ecgcalcs.tachy
     bradycondition = ecgcalcs.brady
-    global countave
-    countave += 1
     return_message = {"averaging_period":average_window, "time": t,
+                      "average_heart_rate":average_hr,
                       "tachycardia_annotations": tachycondition,
                       "bradycardia_annotations": bradycondition}
     return jsonify(return_message)
