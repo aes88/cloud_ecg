@@ -43,7 +43,7 @@ class HrmVals:
                 count += 1
             self.peak_vector = np.array(peak_times)
         self.timebeat = np.diff(self.peak_vector)
-    
+
     def hrm_instant_data(self):
         import statistics
         import numpy as np
