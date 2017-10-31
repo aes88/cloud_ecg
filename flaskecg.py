@@ -135,6 +135,7 @@ def hrsummary():
     #    count += 1
     #return_string += "]"
     #return "{:}".format(return_string)
+    global countsum
     countsum += 1
     return_message = {"time":t, "instantaneous_heart_rate":instant_hr,
                       "tachycardia_annotations":tachycondition,
@@ -208,6 +209,7 @@ def hrmaverage():
     average_hr = ecgcalcs.average_hr
     tachycondition = ecgcalcs.tachy
     bradycondition = ecgcalcs.brady
+    global countave
     countave += 1
     return_message = {"averaging_period":average_window, "time": t,
                       "tachycardia_annotations": tachycondition,
@@ -216,15 +218,17 @@ def hrmaverage():
 
 @app.route("/api/requests",methods = ['GET'])
 def requests ():
-    nowcount = countsum + countave
+    totalcount = countsum + countave
+    a = jsonify(totalcount)
+    return "The total number of requests is %s." % a.get_data(asText = True)
     #counts need to be jsons
-    with open("counterfile.txt","w+") as f:
-        try:
-            savedcount = json.load(f)
-            savedcount += nowcount
-            json.dump(savedcount,f)
-            return savedcount
-        except NameError:
-            savedcount = nowcount
-            json.dump(savedcount,f)
-            return savedcount
+#    with open("counterfile.txt","w+") as f:
+#        try:
+#            savedcount = json.load(f)
+#            savedcount += nowcount
+#            json.dump(savedcount,f)
+#            return savedcount
+#        except NameError:
+#            savedcount = nowcount
+#            json.dump(savedcount,f)
+#            return savedcount
