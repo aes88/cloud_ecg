@@ -73,6 +73,9 @@ class HrmVals:
         self.tachy = tb_ecg.tachy
         self.brady = tb_ecg.brady
 
+countave = 0
+counts = 0
+
 @app.route("/api/heart_rate/summary", methods=['POST'])
 def hrsummary():
     import numpy as np
@@ -117,6 +120,8 @@ def hrsummary():
     instant_hr = ecgcalcs.instant_hr
     tachycondition = ecgcalcs.tachy
     bradycondition = ecgcalcs.brady
+    global counts
+    counts += 1
     #for row in list(zip(time, instant_hr, tachycondition, bradycondition)):
     #    return("{},{},{},{}\n".format(np.round(row[0], 2),
     #                                  np.round(row[1], 2),
@@ -204,6 +209,8 @@ def hrmaverage():
     average_hr = ecgcalcs.average_hr
     tachycondition = ecgcalcs.tachy
     bradycondition = ecgcalcs.brady
+    global countave
+    countave += 1
     return_message = {"averaging_period":average_window, "time": t,
                       "tachycardia_annotations": tachycondition,
                       "bradycardia_annotations": bradycondition}
@@ -211,3 +218,6 @@ def hrmaverage():
 
 @app.route("/api/requests",methods = ['GET'])
 def requests ():
+    totalhits = counts + countave
+    a = jsonify(totalhits)
+    return "The total number of hits at this API is %s." % a.get_data(asText = True)
