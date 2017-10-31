@@ -219,8 +219,10 @@ def hrmaverage():
 @app.route("/api/requests",methods = ['GET'])
 def requests ():
     totalcount = countsum + countave
-    a = jsonify(totalcount)
-    return "The total number of requests is %s." % a.get_data(asText = True)
+    return_str = "The total number of requests is %d" % (totalcount)
+    return jsonify(return_str)
+    #a = jsonify(totalcount)
+    #return "The total number of requests is %s." % (a) #.get_data(asText=True)
     #counts need to be jsons
 #    with open("counterfile.txt","w+") as f:
 #        try:
