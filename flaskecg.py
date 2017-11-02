@@ -74,7 +74,7 @@ class HrmVals:
         self.brady = tb_ecg.brady
 
 countave = 0
-counts = 0
+countsum = 0
 
 def validate_ave(data):
     import numpy as np
@@ -137,7 +137,7 @@ def validate_ave(data):
     return t, v, time, voltage
 
 
-def validate_ave(data):
+def validate(data):
     import numpy as np
     t_check_1 = True
     t_check_2 = True
@@ -272,6 +272,7 @@ def hrmaverage():
     average_hr = ecgcalcs.average_hr
     tachycondition = ecgcalcs.tachy
     bradycondition = ecgcalcs.brady
+
     return_message = {"averaging_period":average_window, "time": t,
                       "average_heart_rate":average_hr,
                       "tachycardia_annotations": tachycondition,
@@ -280,6 +281,6 @@ def hrmaverage():
 
 @app.route("/api/requests",methods = ['GET'])
 def requests ():
-    totalhits = counts + countave
-    a = jsonify(totalhits)
-    return "The total number of hits at this API is %s." % a.get_data(as_text = True)
+    totalcount = countsum + countave
+    return_str = "The total number of requests is %d" % (totalcount)
+    return jsonify(return_str)
