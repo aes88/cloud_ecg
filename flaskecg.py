@@ -76,16 +76,12 @@ class HrmVals:
 countave = 0
 counts = 0
 
-@app.route("/api/heart_rate/summary", methods=['POST'])
-def hrsummary():
+def validate_ave(data):
     import numpy as np
-    global counts
-    counts += 1
     t_check_1 = True
     t_check_2 = True
     v_check_1 = True
     v_check_2 = True
-    data = request.get_json()
     try:
         t = data['time']
     except:
@@ -99,7 +95,7 @@ def hrsummary():
         try:
             t = data['TIME']
         except:
-            return "Error: Time not entered/misspelled"
+            raise ValueError("Error: Time not entered/misspelled")
     try:
         v = data['voltage']
     except:
@@ -113,25 +109,135 @@ def hrsummary():
         try:
             v = data['VOLTAGE']
         except:
-            return "Error: Voltage not entered/misspelled"
+            raise ValueError("Error: Voltage not entered/misspelled")
     try:
         time = np.array(t)
     except:
-        return "Time is not an array of numeric values"
+        raise ValueError("Time is not an array")
+    for i in time:
+        try:
+            test = float(i)
+        except:
+            raise ValueError("Time is not entirely numeric")
     try:
         voltage = np.array(v)
     except:
-        return "Voltage is not an array of numeric values"
+        raise ValueError("Voltage is not an array")
+    for i in voltage:
+        try:
+            test = float(i)
+        except:
+            raise ValueError("Voltage is not entirely numeric")
     if len(time) != len(voltage):
-        return "Time and voltage not equal lengths"
+        raise ValueError("Time and voltage not equal lengths")
     try:
         test_1 = t[0]
     except:
-        return "Time and voltage are empty vectors"
-    # errors to test: 1. non-numeric t or v
-    # 2. unequal length
-    # 3. empty vectors
-    # 4. no heartbeats detected
+        raise ValueError("Time and voltage are empty vectors")
+    return t, v, time, voltage
+
+
+def validate_ave(data):
+    import numpy as np
+    t_check_1 = True
+    t_check_2 = True
+    v_check_1 = True
+    v_check_2 = True
+    avg_check_1 = True
+    avg_check_2 = True
+    avg_check_3 = True
+    try:
+        t = data['time']
+    except:
+        t_check_1 = False
+    if not t_check_1:
+        try:
+            t = data['Time']
+        except:
+            t_check_2 = False
+    if not t_check_2:
+        try:
+            t = data['TIME']
+        except:
+            raise ValueError("Error: Time not entered/misspelled")
+    try:
+        v = data['voltage']
+    except:
+        v_check_1 = False
+    if not v_check_1:
+        try:
+            v = data['Voltage']
+        except:
+            v_check_2 = False
+    if not v_check_2:
+        try:
+            v = data['VOLTAGE']
+        except:
+            raise ValueError("Error: Voltage not entered/misspelled")
+    try:
+        average_window = data['averaging_period']
+    except:
+        avg_check_1 = False
+    if not avg_check_1:
+        try:
+            average_window = data['Averaging_period']
+        except:
+            avg_check_2 = False
+    if not avg_check_2:
+        try:
+            average_window = data['Averaging_period']
+        except:
+            avg_check_3 = False
+    if not avg_check_3:
+        try:
+            average_window = data['AVERAGING_PERIOD']
+        except:
+            raise ValueError("Error: Average window not entered/misspelled")
+    try:
+        time = np.array(t)
+    except:
+        raise ValueError("Time is not an array")
+    for i in time:
+        try:
+            test = float(i)
+        except:
+            raise ValueError("Time is not entirely numeric")
+    try:
+        voltage = np.array(v)
+    except:
+        raise ValueError("Voltage is not an array")
+    for i in voltage:
+        try:
+            test = float(i)
+        except:
+            raise ValueError("Voltage is not entirely numeric")
+    try:
+        average_window = float(average_window)
+    except:
+        raise ValueError("Averaging window is not numeric")
+    if len(time) != len(voltage):
+        raise ValueError("Time and voltage not equal lengths")
+    try:
+        test_1 = t[0]
+    except:
+        raise ValueError("Time and voltage are empty vectors")
+    return t, v, time, voltage, average_window
+
+def send_error(inst):
+    return_str = str(inst)
+    return return_str
+
+
+
+@app.route("/api/heart_rate/summary", methods=['POST'])
+def hrsummary():
+    import numpy as np
+    global counts
+    data = request.get_json()
+    try:
+        t, v, time, voltage, average_window = validate(data)
+    except Exception as inst:
+        return str(inst)
     ecgcalcs = HrmVals(time, voltage)
     try:
         ecgcalcs.hrm_data()
@@ -152,90 +258,11 @@ def hrmaverage():
     import numpy as np
     global countave
     countave += 1
-    t_check_1 = True
-    t_check_2 = True
-    v_check_1 = True
-    v_check_2 = True
-    avg_check_1 = True
-    avg_check_2 = True
-    avg_check_3 = True
     data = request.get_json()
     try:
-        t = data['time']
-    except:
-        t_check_1 = False
-    if not t_check_1:
-        try:
-            t = data['Time']
-        except:
-            t_check_2 = False
-    if not t_check_2:
-        try:
-            t = data['TIME']
-        except:
-            return "Error: Time not entered/misspelled"
-    try:
-        v = data['voltage']
-    except:
-        v_check_1 = False
-    if not v_check_1:
-        try:
-            v = data['Voltage']
-        except:
-            v_check_2 = False
-    if not v_check_2:
-        try:
-            v = data['VOLTAGE']
-        except:
-            return "Error: Voltage not entered/misspelled"
-    try:
-        average_window = data['averaging_period']
-    except:
-        avg_check_1 = False
-    if not avg_check_1:
-        try:
-            average_window = data['Averaging_period']
-        except:
-            avg_check_2 = False
-    if not avg_check_2:
-        try:
-            average_window = data['Averaging_period']
-        except:
-            avg_check_3 = False
-    if not avg_check_3:
-        try:
-            average_window = data['AVERAGING_PERIOD']
-        except:
-            return "Error: Average window not entered/misspelled"
-    try:
-        time = np.array(t)
-    except:
-        return "Time is not an array"
-    for i in time:
-        try:
-            test = float(i)
-        except:
-            return "Time is not entirely numeric"
-    try:
-        voltage = np.array(v)
-    except:
-        return "Voltage is not an array"
-    for i in voltage:
-        try:
-            test = float(i)
-        except:
-            return "Time is not entirely numeric"
-
-    try:
-        average_window = float(average_window)
-    except:
-        return "Averaging window is not numeric"
-    if len(time) != len(voltage):
-        return "Time and voltage not equal lengths"
-    try:
-        test_1 = t[0]
-    except:
-        return "Time and voltage are empty vectors"
+        t, v, time, voltage, average_window = validate_ave(data)
+    except Exception as inst:
+        return str(inst)
     ecgcalcs = HrmVals(time, voltage)
     try:
         ecgcalcs.hrm_data()
