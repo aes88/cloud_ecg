@@ -114,14 +114,29 @@ def hrsummary():
             v = data['VOLTAGE']
         except:
             return "Error: Voltage not entered/misspelled"
-    time = np.array(t)
-    voltage = np.array(v)
+    try:
+        time = np.array(t)
+    except:
+        return "Time is not an array of numeric values"
+    try:
+        voltage = np.array(v)
+    except:
+        return "Voltage is not an array of numeric values"
+    if len(time) != len(voltage):
+        return "Time and voltage not equal lengths"
+    try:
+        test_1 = t[0]
+    except:
+        return "Time and voltage are empty vectors"
     # errors to test: 1. non-numeric t or v
     # 2. unequal length
     # 3. empty vectors
     # 4. no heartbeats detected
     ecgcalcs = HrmVals(time, voltage)
-    ecgcalcs.hrm_data()
+    try:
+        ecgcalcs.hrm_data()
+    except:
+        return "Error: no heartbeats detected"
     ecgcalcs.hrm_instant_data()
     instant_hr = ecgcalcs.instant_hr
     tachycondition = ecgcalcs.tachy
@@ -192,10 +207,35 @@ def hrmaverage():
             average_window = data['AVERAGING_PERIOD']
         except:
             return "Error: Average window not entered/misspelled"
-    time = np.array(t)
-    voltage = np.array(v)
+    try:
+        time = np.array(t)
+    except:
+        return "Time is not an array"
+    if np.issubdtype(np.str_, time) != 0:
+        return "Time is not entirely numeric"
+    try:
+        voltage = np.array(v)
+    except:
+        return "Voltage is not an array"
+    if np.issubdtype(np.str_, voltage) != 0:
+        return "Voltage is not entirely numeric"
+    if len(time) != len(voltage):
+        return "Time and voltage not equal lengths"
+    try:
+        average_window = float(average_window)
+    except:
+        return "Averaging window is not numeric"
+    if len(time) != len(voltage):
+        return "Time and voltage not equal lengths"
+    try:
+        test_1 = t[0]
+    except:
+        return "Time and voltage are empty vectors"
     ecgcalcs = HrmVals(time, voltage)
-    ecgcalcs.hrm_data()
+    try:
+        ecgcalcs.hrm_data()
+    except:
+        return "Error: no heartbeats detected"
     ecgcalcs.hrm_average_data(average_window)
     average_hr = ecgcalcs.average_hr
     tachycondition = ecgcalcs.tachy
