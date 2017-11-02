@@ -211,16 +211,21 @@ def hrmaverage():
         time = np.array(t)
     except:
         return "Time is not an array"
-    if np.issubdtype(np.str_, time) != 0:
-        return "Time is not entirely numeric"
+    for i in time:
+        try:
+            test = float(i)
+        except:
+            return "Time is not entirely numeric"
     try:
         voltage = np.array(v)
     except:
         return "Voltage is not an array"
-    if np.issubdtype(np.str_, voltage) != 0:
-        return "Voltage is not entirely numeric"
-    if len(time) != len(voltage):
-        return "Time and voltage not equal lengths"
+    for i in voltage:
+        try:
+            test = float(i)
+        except:
+            return "Time is not entirely numeric"
+
     try:
         average_window = float(average_window)
     except:
