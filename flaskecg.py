@@ -74,11 +74,7 @@ class HrmVals:
         self.brady = tb_ecg.brady
 
 countave = 0
-<<<<<<< HEAD
-counts = 0
-=======
 countsum = 0
->>>>>>> d14f8f62f2b5b11b47989d921ebf090ca3d2de36
 
 @app.route("/api/heart_rate/summary", methods=['POST'])
 def hrsummary():
