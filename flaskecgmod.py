@@ -155,5 +155,3 @@ def requests ():
     return_str = "The total number of requests is %d" % (totalcount)
     return jsonify(return_str)
 
-
-
