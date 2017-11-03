@@ -56,7 +56,7 @@ class Validate_ave(unittest.TestCase):
 
 #def test_summary():
 #    assert flaskecgmod.hrmcalculate() ==
-    
+
 
 #def test_average():
 

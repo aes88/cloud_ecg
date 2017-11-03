@@ -269,9 +269,9 @@ def generaterespave(t,average_window,average_hr,tachycondition, bradycondition):
 @app.route("/api/heart_rate/summary", methods=['POST'])
 def hrsummary():
     import numpy as np
-    global counts
-    counts += 1
     data = request.get_json()
+    global countsum
+    countsum += 1
     try:
         t, v, time, voltage = validate(data)
     except Exception as inst:
@@ -285,6 +285,8 @@ def hrsummary():
         arr = generateresp(t,instant_hr,tachycondition,bradycondition)
         return arr
     except ValueError:
+        generateresp(t,instant_hr,tachycondition,bradycondition)
+    except ValidationError:
         print("Response not correct")
 
 @app.route("/api/heart_rate/average", methods=['POST'])
@@ -307,5 +309,12 @@ def hraverage():
         return arr
     except ValueError:
         print("Response not correct")
+
+@app.route("/api/requests",methods = ['GET'])
+def requests ():
+    totalcount = countsum + countave
+    return_str = "The total number of requests is %d" % (totalcount)
+    return jsonify(return_str)
+
 
 
