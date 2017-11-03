@@ -74,7 +74,156 @@ class HrmVals:
         self.brady = tb_ecg.brady
 
 countave = 0
-countsum = 0
+counts = 0
+
+
+def validate(data):
+    import numpy as np
+    t_check_1 = True
+    t_check_2 = True
+    v_check_1 = True
+    v_check_2 = True
+    try:
+        t = data['time']
+    except:
+        t_check_1 = False
+    if not t_check_1:
+        try:
+            t = data['Time']
+        except:
+            t_check_2 = False
+    if not t_check_2:
+        try:
+            t = data['TIME']
+        except:
+            raise ValueError("Error: Time not entered/misspelled")
+    try:
+        v = data['voltage']
+    except:
+        v_check_1 = False
+    if not v_check_1:
+        try:
+            v = data['Voltage']
+        except:
+            v_check_2 = False
+    if not v_check_2:
+        try:
+            v = data['VOLTAGE']
+        except:
+            raise ValueError("Error: Voltage not entered/misspelled")
+    try:
+        time = np.array(t)
+    except:
+        raise ValueError("Time is not an array")
+    for i in time:
+        try:
+            test = float(i)
+        except:
+            raise ValueError("Time is not entirely numeric")
+    try:
+        voltage = np.array(v)
+    except:
+        raise ValueError("Voltage is not an array")
+    for i in voltage:
+        try:
+            test = float(i)
+        except:
+            raise ValueError("Voltage is not entirely numeric")
+    if len(time) != len(voltage):
+        raise ValueError("Time and voltage not equal lengths")
+    try:
+        test_1 = t[0]
+    except:
+        raise ValueError("Time and voltage are empty vectors")
+    return t, v, time, voltage
+
+
+def validate_ave(data):
+    import numpy as np
+    t_check_1 = True
+    t_check_2 = True
+    v_check_1 = True
+    v_check_2 = True
+    avg_check_1 = True
+    avg_check_2 = True
+    avg_check_3 = True
+    try:
+        t = data['time']
+    except:
+        t_check_1 = False
+    if not t_check_1:
+        try:
+            t = data['Time']
+        except:
+            t_check_2 = False
+    if not t_check_2:
+        try:
+            t = data['TIME']
+        except:
+            raise ValueError("Error: Time not entered/misspelled")
+    try:
+        v = data['voltage']
+    except:
+        v_check_1 = False
+    if not v_check_1:
+        try:
+            v = data['Voltage']
+        except:
+            v_check_2 = False
+    if not v_check_2:
+        try:
+            v = data['VOLTAGE']
+        except:
+            raise ValueError("Error: Voltage not entered/misspelled")
+    try:
+        average_window = data['averaging_period']
+    except:
+        avg_check_1 = False
+    if not avg_check_1:
+        try:
+            average_window = data['Averaging_period']
+        except:
+            avg_check_2 = False
+    if not avg_check_2:
+        try:
+            average_window = data['Averaging_period']
+        except:
+            avg_check_3 = False
+    if not avg_check_3:
+        try:
+            average_window = data['AVERAGING_PERIOD']
+        except:
+            raise ValueError("Error: Average window not entered/misspelled")
+    try:
+        time = np.array(t)
+    except:
+        raise ValueError("Time is not an array")
+    for i in time:
+        try:
+            test = float(i)
+        except:
+            raise ValueError("Time is not entirely numeric")
+    try:
+        voltage = np.array(v)
+    except:
+        raise ValueError("Voltage is not an array")
+    for i in voltage:
+        try:
+            test = float(i)
+        except:
+            raise ValueError("Voltage is not entirely numeric")
+    try:
+        average_window = float(average_window)
+    except:
+        raise ValueError("Averaging window is not numeric")
+    if len(time) != len(voltage):
+        raise ValueError("Time and voltage not equal lengths")
+    try:
+        test_1 = t[0]
+    except:
+        raise ValueError("Time and voltage are empty vectors")
+    return t, v, time, voltage, average_window
+
 
 def hrmcalculate(time,voltage):
     ecgcalcs = HrmVals(time,voltage)
@@ -88,11 +237,13 @@ def hrmcalculate(time,voltage):
     bradycondition = ecgcalcs.brady
     return instant_hr, tachycondition, bradycondition
 
+
 def generateresp(t,instant_hr,tachycondition,bradycondition):
     return_message = {"time":t, "instantaneous_heart_rate":instant_hr,
                     "tachycardia_annotations":tachycondition,
                     "bradycardia_annotations":bradycondition}
     return jsonify(return_message)
+
 
 def hrmcalculateave(time, voltage, average_window):
     ecgcalcs = HrmVals(time,voltage)
@@ -106,6 +257,7 @@ def hrmcalculateave(time, voltage, average_window):
     bradycondition = ecgcalcs.brady
     return average_hr,tachycondition, bradycondition
 
+
 def generaterespave(t,average_window,average_hr,tachycondition, bradycondition):
     return_message = {"averaging_period": average_window, "time": t,
                       "average_heart_rate": average_hr,
@@ -113,20 +265,26 @@ def generaterespave(t,average_window,average_hr,tachycondition, bradycondition):
                       "bradycardia_annotations": bradycondition}
     return jsonify(return_message)
 
+
 @app.route("/api/heart_rate/summary", methods=['POST'])
 def hrsummary():
     import numpy as np
+    data = request.get_json()
     global countsum
     countsum += 1
     try:
-        validate(data)
-    except ValidationError as inst:
-        return send_error(inst), 400 # need to import send error
+        t, v, time, voltage = validate(data)
+    except Exception as inst:
+        return_string = str(inst) + ", 400"
+        return return_string
     try:
-        hrmcalculate(time,voltage)
+        instant_hr, tachycondition, bradycondition = hrmcalculate(time,voltage)
     except ValueError:
         print("No heartbeats detected")
     try:
+        arr = generateresp(t,instant_hr,tachycondition,bradycondition)
+        return arr
+    except ValueError:
         generateresp(t,instant_hr,tachycondition,bradycondition)
     except ValidationError:
         print("Response not correct")
@@ -136,17 +294,20 @@ def hraverage():
     import numpy as np
     global countave
     countave += 1
+    data = request.get_json()
     try:
-        validateave(data)
-    except ValidationError as inst:
-        return send_error(inst), 400
+        t, v, time, voltage, average_window = validate_ave(data)
+    except Exception as inst:
+        return_string = str(inst) + ", 400"
+        return return_string
     try:
-        hrmcalculateave(time,voltage,average_window)
+        average_hr, tachycondition, bradycondition = hrmcalculateave(time,voltage,average_window)
     except ValueError:
         print("No heartbeats detected")
     try:
-        generaterespave(t,average_window, average_hr, tachycondition, bradycondition)
-    except ValidationError:
+        arr = generaterespave(t,average_window, average_hr, tachycondition, bradycondition)
+        return arr
+    except ValueError:
         print("Response not correct")
 
 @app.route("/api/requests",methods = ['GET'])
