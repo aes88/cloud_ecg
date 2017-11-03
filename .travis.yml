@@ -12,5 +12,4 @@ install:
   - conda env create -f environment.yml # Create your envronment
   - source activate hrmtest # Activate your environment NOTE: Change ci-test to the name of your environment in environment.yml
 script:
-  - py.test # Run the tests
-~                            
+  - py.test # Run the tests                            
