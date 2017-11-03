@@ -1,6 +1,6 @@
 
 def test_summary():
-    assert flaskecgmod.hrmcalculate() ==
+    flaskecgmod.hrmcalculate() ==
     
 
 def test_average():
