@@ -74,8 +74,7 @@ class HrmVals:
         self.brady = tb_ecg.brady
 
 countave = 0
-counts = 0
-
+countsum = 0
 
 def validate(data):
     import numpy as np

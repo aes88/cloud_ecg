@@ -53,12 +53,9 @@ class Validate_ave(unittest.TestCase):
                           {"time": [1, 2, 3], "voltageasdf": [1, 2, 3],
                            "average_window": "twenty-four"})
 
-#def test_summary():
-#    assert flaskecgmod.hrmcalculate() ==
+def test_summary():
+    assert flaskecgmod.hrmcalculate() ==
 
+def test_average():
 
-#def test_average():
-
-
-
-#def genresp():
+def genresp():
