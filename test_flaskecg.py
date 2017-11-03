@@ -54,8 +54,30 @@ class Validate_ave(unittest.TestCase):
                            "average_window": "twenty-four"})
 
 def test_summary():
-    assert flaskecgmod.hrmcalculate() ==
+    assert flaskecgmod.hrmcalculate([1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                                    [6, 4, 8, 4, 2, 45, 2, 4, 3, 48]) == \
+           ([0,0,0,0,0,0,0,0,0,15],[False,False,False,False,False,False,False,False,False,False],
+            [False, False, True, True, True, True, True, True, True, True])
 
 def test_average():
+    assert flaskecgmod.hrmcalculateave([1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                                    [6, 4, 8, 4, 2, 45, 2, 4, 3, 48], 2) == \
+           ([0,0,0,0,0,0,0,0,0,15],[False, False, False, False, False, False, False, False, False, False],
+            [False, False, True, True, True, True, True, True, True, True])
 
-def genresp():
+def test_respave():
+    assert flaskecgmod.generaterespave([1, 2, 3, 4, 5, 6, 7, 8, 9, 10],[2],[0,0,0,0,0,0,0,0,0,15],
+                                    [False,False,False,False,False,False,False,False,False,False],
+                                    [False, False, True, True, True, True, True, True, True, True]) ==\
+           {"average_heart_rate":[0,0,0,0,0,0,0,0,0,15],"averaging_period":[2],
+     "bradycardia_annotations":[False, False, True, True, True, True, True, True, True, True],
+     "tachycardia_annotations":[False,False,False,False,False,False,False,False,False,False]}
+
+def test_respsummary():
+    assert flaskecgmod.generateresp([1, 2, 3, 4, 5, 6, 7, 8, 9, 10],[0,0,0,0,0,0,0,0,0,15],
+                                    [False,False,False,False,False,False,False,False,False,False],
+                                    [False, False, True, True, True, True, True, True, True, True]) ==\
+           {"bradycardia_annotations": [False, False, True, True, True, True, True, True, True, True],
+            "instantaneous_heart_rate": [0, 0, 0, 0, 0, 0, 0, 0, 0, 15],
+            "tachycardia_annotations": [False, False, False, False, False, False, False, False, False, False],
+            "time": [1,2,3,4,5,6,7,8,9,10]}
