@@ -17,6 +17,21 @@ class HrmVals:
         self.timebeat = []
 
     def hrm_data(self, peak_thresh=0.8, base_thresh=0.2):
+        """
+        This method determines the range of what is considered as a heartbeat,
+        then determines the time values at which a heartbeat occurs.
+
+        :param peak_thresh: Ratio of ranges used to detect peaks. Default is
+        0.8 V.
+
+        :param base_thresh: Base threshold value to reset between peaks.
+        Default is 0.2 V.
+
+        :return: This method appends the resulting time values associated with
+        heart beats onto an array called peak_vector. Additionally, an array called timebeat,
+        which is the time between heart beats, is also returned.
+
+        """
         import statistics
         import numpy as np
         from bme590hrm.hrmcalcs2oo import hrmcalcs
@@ -45,6 +60,13 @@ class HrmVals:
         self.timebeat = np.diff(self.peak_vector)
 
     def hrm_instant_data(self):
+        """
+        This uses imported modules from hrmcalcs and TachyBrady to deliver the instantaneous heart rate,
+        tachycardia indications, and bradycardia indications.
+
+        :return: The array instant_hr is the instantaneous heart rate of the data, while
+        tachy and brady are the tachycardia and bradycardia indications, respectively.
+        """
         import statistics
         import numpy as np
         from bme590hrm.hrmcalcs2oo import hrmcalcs
@@ -60,6 +82,15 @@ class HrmVals:
         self.brady = tb_ecg.brady
 
     def hrm_average_data(self, averaging_window):
+        """
+        This method provides an array of average heart rate and bradycardia/tachycardia annotations
+        over a specified time interval averaging window.
+
+        :param averaging_window: This parameter is the period over which the average and brady/tachy
+        annotations are calculated. It is in seconds.
+        :return: The instantaneous heart rate and average over the specified window are returned, along
+        with the tachy/bradycardia indications.
+        """
         import statistics
         import numpy as np
         from bme590hrm.hrmcalcs2oo import hrmcalcs
@@ -77,6 +108,14 @@ countave = 0
 countsum = 0
 
 def validate(data):
+    """
+    This function takes the JSON input time and voltage data and verifies that both
+    time and voltage data are entered and not empty vectors, not misspelled, numeric,
+    in array form, and are equal lengths.
+    :param data: This is a JSON input consisting of time data and voltage data.
+    :return: The method returns parsed JSONs in t and v, and converts those into numpy
+    arrays time and voltage.
+    """
     import numpy as np
     t_check_1 = True
     t_check_2 = True
@@ -138,6 +177,18 @@ def validate(data):
 
 
 def validate_ave(data):
+    """
+    This function takes the JSON input time and voltage data and verifies that both
+    time and voltage data are entered and not empty vectors, not misspelled, numeric,
+    in array form, and are equal lengths.  Additionally, it checks for the entering
+    and proper spelling of an average period.
+
+    :param data: This is a JSON input consisting of time data and voltage data.
+
+    :return: The method returns parsed JSONs in t and v, and converts those into numpy
+    arrays time and voltage. In addition, a user-inputted average_window is outputted
+    as well.
+    """
     import numpy as np
     t_check_1 = True
     t_check_2 = True
@@ -225,6 +276,17 @@ def validate_ave(data):
 
 
 def hrmcalculate(time,voltage):
+    """
+    This method takes time and voltage data parsed from the validate stage and calculates
+    instantaneous heart rates and tachy/bradycardia indications. If there are no heartbeats
+    detected, an error is displayed.
+    :param time: Taken from the validate method, this array is in seconds and
+    provides the time data for calculations.
+    :param voltage: Taken from the validate method, this array is in millivolts and
+    provides the voltage data for calculations.
+    :return: The arrays instant_hr, tachycondition, and bradycondition provide instantaneous
+    heart rate data, tachycardia indications, and bradycardia indications, respectively.
+    """
     ecgcalcs = HrmVals(time,voltage)
     try:
         ecgcalcs.hrm_data()
@@ -238,6 +300,16 @@ def hrmcalculate(time,voltage):
 
 
 def generateresp(t,instant_hr,tachycondition,bradycondition):
+    """
+    This method takes time, instantaneous heart rate, tachycardia condition, and
+    bradycardia condition inputs and structures them into a JSON output.
+    :param t: Time array in seconds
+    :param instant_hr: Instantaneous heart rate in beats per minute
+    :param tachycondition: Tachycardia indications (displayed as true or false)
+    :param bradycondition: Bradycardia indications (displayed as true or false)
+    :return: The method returns a JSON output consisting of time, instantaneous heart rate,
+    tachycardia condition, and bradycardia condition.
+    """
     return_message = {"time":t, "instantaneous_heart_rate":instant_hr,
                     "tachycardia_annotations":tachycondition,
                     "bradycardia_annotations":bradycondition}
@@ -245,6 +317,17 @@ def generateresp(t,instant_hr,tachycondition,bradycondition):
 
 
 def hrmcalculateave(time, voltage, average_window):
+    """
+    This method calculates the average heart rate over a specified time interval, along with
+    the tachy/bradycardia indications.
+    :param time: Taken from the validate method, this array is in seconds and
+    provides the time data for calculations.
+    :param voltage: Taken from the validate method, this array is in millivolts and
+    provides the voltage data for calculations.
+    :param average_window: User-specified time interval for calculating average, in seconds.
+    :return: The average heart rate over the average window time interval, tachycardia indications,
+    and bradycardia conditions are returned.
+    """
     ecgcalcs = HrmVals(time,voltage)
     try:
         ecgcalcs.hrm_data()
@@ -258,6 +341,17 @@ def hrmcalculateave(time, voltage, average_window):
 
 
 def generaterespave(t,average_window,average_hr,tachycondition, bradycondition):
+    """
+    This method takes time, average window, average heart rate, tachycardia condition, and
+    bradycardia condition inputs and structures them into a JSON output.
+    :param t: Time array in seconds
+    :param average_window: User-specified interval for average calculations, in seconds.
+    :param average_hr: Average heart rate data in beats per minute.
+    :param tachycondition: Tachycardia indications (displayed as true or false)
+    :param bradycondition: Bradycardia indications (displayed as true or false)
+    :return: The method returns a JSON output consisting of averaging period,
+    time, average heart rate, tachycardia condition, and bradycardia condition.
+    """
     return_message = {"averaging_period": average_window, "time": t,
                       "average_heart_rate": average_hr,
                       "tachycardia_annotations": tachycondition,
@@ -267,6 +361,14 @@ def generaterespave(t,average_window,average_hr,tachycondition, bradycondition):
 
 @app.route("/api/heart_rate/summary", methods=['POST'])
 def hrsummary():
+    """
+    This method creates a web service that takes a JSON input of time and voltage values and
+    delivers a JSON output of time, instantaneous heart rate, tachycardia annotations, and
+    bradycardia annotations to a specified RESTful API route (endpoint: /api/heart_rate/summary)
+    using the Flask application.
+    :return: A JSON output consisting of time, instantaneous heart rate, tachycardia, and bradycardia
+    data.
+    """
     import numpy as np
     data = request.get_json()
     global countsum
@@ -289,6 +391,14 @@ def hrsummary():
 
 @app.route("/api/heart_rate/average", methods=['POST'])
 def hraverage():
+    """
+    This method creates a web service that takes a JSON input of averaging period, time and voltage values
+    and delivers a JSON output of averaging period, time, average heart rate, tachycardia annotations,
+    and bradycardia annotations to a specified RESTful API route (endpoint: /api/heart_rate/average) using
+    the Flask application.
+    :return: A JSON output consisting of time, instantaneous heart rate, tachycardia, and bradycardia
+    data.
+    """
     import numpy as np
     global countave
     countave += 1
@@ -310,6 +420,11 @@ def hraverage():
 
 @app.route("/api/requests",methods = ['GET'])
 def requests ():
+    """
+    This method creates a GET request that provides the number of total requests this web service has
+    served since its most recent reboot at the endpoint /api/requests.
+    :return: A number of total requests for heart rate summary and heart rate average in a text string.
+    """
     totalcount = countsum + countave
     return_str = "The total number of requests is %d" % (totalcount)
     return jsonify(return_str)
