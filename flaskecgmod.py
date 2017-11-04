@@ -241,7 +241,7 @@ def generateresp(t,instant_hr,tachycondition,bradycondition):
     return_message = {"time":t, "instantaneous_heart_rate":instant_hr,
                     "tachycardia_annotations":tachycondition,
                     "bradycardia_annotations":bradycondition}
-    return jsonify(return_message)
+    return return_message
 
 
 def hrmcalculateave(time, voltage, average_window):
@@ -262,7 +262,7 @@ def generaterespave(t,average_window,average_hr,tachycondition, bradycondition):
                       "average_heart_rate": average_hr,
                       "tachycardia_annotations": tachycondition,
                       "bradycardia_annotations": bradycondition}
-    return jsonify(return_message)
+    return return_message
 
 
 @app.route("/api/heart_rate/summary", methods=['POST'])
@@ -282,10 +282,9 @@ def hrsummary():
         print("No heartbeats detected")
     try:
         arr = generateresp(t,instant_hr,tachycondition,bradycondition)
+        return jsonify(arr)
         return arr
     except ValueError:
-        generateresp(t,instant_hr,tachycondition,bradycondition)
-    except ValidationError:
         print("Response not correct")
 
 @app.route("/api/heart_rate/average", methods=['POST'])
@@ -304,8 +303,8 @@ def hraverage():
     except ValueError:
         print("No heartbeats detected")
     try:
-        arr = generaterespave(t,average_window, average_hr, tachycondition, bradycondition)
-        return arr
+        return_message = generaterespave(t,average_window, average_hr, tachycondition, bradycondition)
+        return jsonify(return_message)
     except ValueError:
         print("Response not correct")
 

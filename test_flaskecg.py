@@ -66,18 +66,19 @@ def test_average():
             [False, False, True, True, True, True, True, True, True, True])
 
 def test_respave():
-    assert flaskecgmod.generaterespave([1, 2, 3, 4, 5, 6, 7, 8, 9, 10],[2],[0,0,0,0,0,0,0,0,0,15],
+    arr = flaskecgmod.generaterespave([1, 2, 3, 4, 5, 6, 7, 8, 9, 10],[2],[0,0,0,0,0,0,0,0,0,15],
                                     [False,False,False,False,False,False,False,False,False,False],
-                                    [False, False, True, True, True, True, True, True, True, True]) ==\
-           {"average_heart_rate":[0,0,0,0,0,0,0,0,0,15],"averaging_period":[2],
-     "bradycardia_annotations":[False, False, True, True, True, True, True, True, True, True],
-     "tachycardia_annotations":[False,False,False,False,False,False,False,False,False,False]}
+                                    [False, False, True, True, True, True, True, True, True, True])
+    assert arr["average_heart_rate"] == [0,0,0,0,0,0,0,0,0,15]
+    assert arr['averaging_period'] == [2]
+    assert arr['bradycardia_annotations'] == [False, False, True, True, True, True, True, True, True, True]
+    assert arr['tachycardia_annotations'] == [False,False,False,False,False,False,False,False,False,False]
+
 
 def test_respsummary():
-    assert flaskecgmod.generateresp([1, 2, 3, 4, 5, 6, 7, 8, 9, 10],[0,0,0,0,0,0,0,0,0,15],
-                                    [False,False,False,False,False,False,False,False,False,False],
-                                    [False, False, True, True, True, True, True, True, True, True]) ==\
-           {"bradycardia_annotations": [False, False, True, True, True, True, True, True, True, True],
-            "instantaneous_heart_rate": [0, 0, 0, 0, 0, 0, 0, 0, 0, 15],
-            "tachycardia_annotations": [False, False, False, False, False, False, False, False, False, False],
-            "time": [1,2,3,4,5,6,7,8,9,10]}
+    arr = flaskecgmod.generateresp([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [0, 0, 0, 0, 0, 0, 0, 0, 0, 15],
+                                      [False, False, False, False, False, False, False, False, False, False],
+                                      [False, False, True, True, True, True, True, True, True, True])
+    assert arr["instantaneous_heart_rate"] == [0, 0, 0, 0, 0, 0, 0, 0, 0, 15]
+    assert arr['bradycardia_annotations'] == [False, False, True, True, True, True, True, True, True, True]
+    assert arr['tachycardia_annotations'] == [False, False, False, False, False, False, False, False, False, False]
