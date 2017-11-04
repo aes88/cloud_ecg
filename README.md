@@ -1,1 +1,1 @@
-# cloud_ecg
+This program uses a web service that performs HR calculations on ECG data along with bradycardia and tachycardia detection. The virtual machine host where our final server is running and servicing requests is ..... The various endpoints of the service are "/api/heart_rate/summary" for a POST that returns instant HR andbrady/tachy summary, "api/heart_rate/average" for a POST that returns an array of averages over a specific time interval and ""api/requests" to GET the total number of requests the service has served since its most recent reboot. 
