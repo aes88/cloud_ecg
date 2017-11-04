@@ -43,7 +43,7 @@ class HrmVals:
                 count += 1
             self.peak_vector = np.array(peak_times)
         self.timebeat = np.diff(self.peak_vector)
-    
+
     def hrm_instant_data(self):
         import statistics
         import numpy as np
@@ -73,14 +73,15 @@ class HrmVals:
         self.tachy = tb_ecg.tachy
         self.brady = tb_ecg.brady
 
-@app.route("/api/heart_rate/summary", methods=['POST'])
-def hrsummary():
+countave = 0
+countsum = 0
+
+def validate_ave(data):
     import numpy as np
     t_check_1 = True
     t_check_2 = True
     v_check_1 = True
     v_check_2 = True
-    data = request.get_json()
     try:
         t = data['time']
     except:
@@ -94,7 +95,7 @@ def hrsummary():
         try:
             t = data['TIME']
         except:
-            return "Error: Time not entered/misspelled"
+            raise ValueError("Error: Time not entered/misspelled")
     try:
         v = data['voltage']
     except:
@@ -108,38 +109,35 @@ def hrsummary():
         try:
             v = data['VOLTAGE']
         except:
-            return "Error: Voltage not entered/misspelled"
-    time = np.array(t)
-    voltage = np.array(v)
-    ecgcalcs = HrmVals(time, voltage)
-    ecgcalcs.hrm_data()
-    ecgcalcs.hrm_instant_data()
-    instant_hr = ecgcalcs.instant_hr
-    tachycondition = ecgcalcs.tachy
-    bradycondition = ecgcalcs.brady
-    #for row in list(zip(time, instant_hr, tachycondition, bradycondition)):
-    #    return("{},{},{},{}\n".format(np.round(row[0], 2),
-    #                                  np.round(row[1], 2),
-    #                                  np.round(row[2], 2),
-    #                                  np.round(row[3], 2)))
-    #count = 0
-    #return_string = "["
-    #for i in peak_vector:
-    #    if count == 0:
-    #        return_string += "{:}".format(peak_vector[count])
-    #    else:
-    #        return_string += ", {:}".format(peak_vector[count])
-    #    count += 1
-    #return_string += "]"
-    #return "{:}".format(return_string)
-    return_message = {"time":t, "instantaneous_heart_rate":instant_hr,
-                      "tachycardia_annotations":tachycondition,
-                      "bradycardia_annotations":bradycondition}
-    return jsonify(return_message)
+            raise ValueError("Error: Voltage not entered/misspelled")
+    try:
+        time = np.array(t)
+    except:
+        raise ValueError("Time is not an array")
+    for i in time:
+        try:
+            test = float(i)
+        except:
+            raise ValueError("Time is not entirely numeric")
+    try:
+        voltage = np.array(v)
+    except:
+        raise ValueError("Voltage is not an array")
+    for i in voltage:
+        try:
+            test = float(i)
+        except:
+            raise ValueError("Voltage is not entirely numeric")
+    if len(time) != len(voltage):
+        raise ValueError("Time and voltage not equal lengths")
+    try:
+        test_1 = t[0]
+    except:
+        raise ValueError("Time and voltage are empty vectors")
+    return t, v, time, voltage
 
 
-@app.route("/api/heart_rate/average", methods=['POST'])
-def hrmaverage():
+def validate(data):
     import numpy as np
     t_check_1 = True
     t_check_2 = True
@@ -148,7 +146,6 @@ def hrmaverage():
     avg_check_1 = True
     avg_check_2 = True
     avg_check_3 = True
-    data = request.get_json()
     try:
         t = data['time']
     except:
@@ -162,7 +159,7 @@ def hrmaverage():
         try:
             t = data['TIME']
         except:
-            return "Error: Time not entered/misspelled"
+            raise ValueError("Error: Time not entered/misspelled")
     try:
         v = data['voltage']
     except:
@@ -176,7 +173,7 @@ def hrmaverage():
         try:
             v = data['VOLTAGE']
         except:
-            return "Error: Voltage not entered/misspelled"
+            raise ValueError("Error: Voltage not entered/misspelled")
     try:
         average_window = data['averaging_period']
     except:
@@ -195,19 +192,95 @@ def hrmaverage():
         try:
             average_window = data['AVERAGING_PERIOD']
         except:
-            return "Error: Average window not entered/misspelled"
-    time = np.array(t)
-    voltage = np.array(v)
+            raise ValueError("Error: Average window not entered/misspelled")
+    try:
+        time = np.array(t)
+    except:
+        raise ValueError("Time is not an array")
+    for i in time:
+        try:
+            test = float(i)
+        except:
+            raise ValueError("Time is not entirely numeric")
+    try:
+        voltage = np.array(v)
+    except:
+        raise ValueError("Voltage is not an array")
+    for i in voltage:
+        try:
+            test = float(i)
+        except:
+            raise ValueError("Voltage is not entirely numeric")
+    try:
+        average_window = float(average_window)
+    except:
+        raise ValueError("Averaging window is not numeric")
+    if len(time) != len(voltage):
+        raise ValueError("Time and voltage not equal lengths")
+    try:
+        test_1 = t[0]
+    except:
+        raise ValueError("Time and voltage are empty vectors")
+    return t, v, time, voltage, average_window
+
+def send_error(inst):
+    return_str = str(inst)
+    return return_str
+
+
+
+@app.route("/api/heart_rate/summary", methods=['POST'])
+def hrsummary():
+    import numpy as np
+    global counts
+    data = request.get_json()
+    try:
+        t, v, time, voltage, average_window = validate(data)
+    except Exception as inst:
+        return str(inst)
     ecgcalcs = HrmVals(time, voltage)
-    ecgcalcs.hrm_data()
+    try:
+        ecgcalcs.hrm_data()
+    except:
+        return "Error: no heartbeats detected"
+    ecgcalcs.hrm_instant_data()
+    instant_hr = ecgcalcs.instant_hr
+    tachycondition = ecgcalcs.tachy
+    bradycondition = ecgcalcs.brady
+    return_message = {"time":t, "instantaneous_heart_rate":instant_hr,
+                      "tachycardia_annotations":tachycondition,
+                      "bradycardia_annotations":bradycondition}
+    return jsonify(return_message)
+
+
+@app.route("/api/heart_rate/average", methods=['POST'])
+def hrmaverage():
+    import numpy as np
+    global countave
+    countave += 1
+    data = request.get_json()
+    try:
+        t, v, time, voltage, average_window = validate_ave(data)
+    except Exception as inst:
+        return str(inst)
+    ecgcalcs = HrmVals(time, voltage)
+    try:
+        ecgcalcs.hrm_data()
+    except:
+        return "Error: no heartbeats detected"
     ecgcalcs.hrm_average_data(average_window)
     average_hr = ecgcalcs.average_hr
     tachycondition = ecgcalcs.tachy
     bradycondition = ecgcalcs.brady
+
     return_message = {"averaging_period":average_window, "time": t,
+                      "average_heart_rate":average_hr,
                       "tachycardia_annotations": tachycondition,
                       "bradycardia_annotations": bradycondition}
     return jsonify(return_message)
 
 @app.route("/api/requests",methods = ['GET'])
 def requests ():
+    totalcount = countsum + countave
+    return_str = "The total number of requests is %d" % (totalcount)
+    return jsonify(return_str)
